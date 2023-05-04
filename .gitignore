@@ -1,0 +1,18 @@
+# binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# go test -c
+*.test
+
+# go test -coverprofile coverage.out
+*.out
+
+# direnv cache folder
+.direnv/
+
+# macOS
+.DS_Store
