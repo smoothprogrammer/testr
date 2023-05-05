@@ -1,6 +1,7 @@
 package testr_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -45,6 +46,12 @@ func fail(output string) testState {
 	return testState{"fail", output}
 }
 
+var (
+	errFoo     = errors.New("foo")
+	errBar     = errors.New("bar")
+	errWrapFoo = fmt.Errorf("wrap %w", errFoo)
+)
+
 func TestAssertEqual(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -68,12 +75,38 @@ func TestAssertEqual(t *testing.T) {
 	}
 }
 
+func TestAssertErrorIs(t *testing.T) {
+	tests := []struct {
+		name     string
+		actual   error
+		expected error
+		testState
+	}{
+		{"eq: nil", nil, nil, pass()},
+		{"eq: not nil", errFoo, errFoo, pass()},
+		{"eq: wrap", errWrapFoo, errFoo, pass()},
+		{"ne: nil", errFoo, nil, fail("error(foo) != expected:nil()")},
+		{"ne: not nil", errFoo, errBar, fail("error(foo) != expected:error(bar)")},
+		{"ne: wrap", errWrapFoo, errBar, fail("error(wrap foo) != expected:error(bar)")},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			m := newMockT(t)
+			assert := testr.New(m)
+			assert.ErrorIs(tc.actual, tc.expected)
+			m.assert(tc.testState)
+		})
+	}
+}
+
 func TestNilT(t *testing.T) {
 	tests := []struct {
 		name string
 		f    func(assert *testr.Assertion)
 	}{
 		{"Equal", func(assert *testr.Assertion) { assert.Equal(nil, nil) }},
+		{"ErrorIs", func(assert *testr.Assertion) { assert.ErrorIs(nil, nil) }},
 	}
 
 	for _, tc := range tests {
