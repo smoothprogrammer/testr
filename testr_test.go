@@ -52,6 +52,12 @@ var (
 	errWrapFoo = fmt.Errorf("wrap %w", errFoo)
 )
 
+type customError string
+
+func (e customError) Error() string {
+	return string(e)
+}
+
 func TestAssertEqual(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -100,13 +106,42 @@ func TestAssertErrorIs(t *testing.T) {
 	}
 }
 
+func TestAssertErrorAs(t *testing.T) {
+	tests := []struct {
+		name   string
+		actual error
+		testState
+	}{
+		{"eq", customError("err"), pass()},
+		{"ne", errFoo, fail("error(foo) != expected:as(*testr_test.customError)")},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			m := newMockT(t)
+			assert := testr.New(m)
+			var expected customError
+			assert.ErrorAs(tc.actual, &expected)
+			m.assert(tc.testState)
+		})
+	}
+}
+
 func TestNilT(t *testing.T) {
 	tests := []struct {
 		name string
 		f    func(assert *testr.Assertion)
 	}{
-		{"Equal", func(assert *testr.Assertion) { assert.Equal(nil, nil) }},
-		{"ErrorIs", func(assert *testr.Assertion) { assert.ErrorIs(nil, nil) }},
+		{"Equal", func(assert *testr.Assertion) {
+			assert.Equal(nil, nil)
+		}},
+		{"ErrorIs", func(assert *testr.Assertion) {
+			assert.ErrorIs(nil, nil)
+		}},
+		{"ErrorAs", func(assert *testr.Assertion) {
+			var e customError
+			assert.ErrorAs(customError("err"), &e)
+		}},
 	}
 
 	for _, tc := range tests {
