@@ -151,7 +151,6 @@ func TestNilT(t *testing.T) {
 				if v != nil {
 					return
 				}
-				t.Helper()
 				t.Errorf("the function is not panic")
 			}()
 			assert := testr.New(nil)
