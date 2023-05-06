@@ -60,115 +60,180 @@ func (e customError) Error() string {
 
 func TestAssertEqual(t *testing.T) {
 	tests := []struct {
-		name     string
-		actual   any
-		expected any
-		testState
+		N string                        // Name.
+		F func(assert *testr.Assertion) // Function.
+		S testState                     // State.
 	}{
-		{"eq: nil", nil, nil, pass()},
-		{"eq: not nil", false, false, pass()},
-		{"ne: diff val", false, true, fail("bool(false) != expected:bool(true)")},
-		{"ne: diff type", nil, "nil", fail("nil() != expected:string(nil)")},
+		{
+			N: "eq: nil",
+			F: func(assert *testr.Assertion) { assert.Equal(nil, nil) },
+			S: pass(),
+		},
+		{
+			N: "eq: not nil",
+			F: func(assert *testr.Assertion) { assert.Equal(false, false) },
+			S: pass(),
+		},
+		{
+			N: "ne: diff val",
+			F: func(assert *testr.Assertion) { assert.Equal(false, true) },
+			S: fail("bool(false) != expected:bool(true)"),
+		},
+		{
+			N: "ne: diff type",
+			F: func(assert *testr.Assertion) { assert.Equal(nil, "nil") },
+			S: fail("nil() != expected:string(nil)"),
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.N, func(t *testing.T) {
 			m := newMockT(t)
-			assert := testr.New(m)
-			assert.Equal(tc.actual, tc.expected)
-			m.assert(tc.testState)
+			tc.F(testr.New(m))
+			m.assert(tc.S)
 		})
 	}
 }
 
 func TestAssertErrorIs(t *testing.T) {
 	tests := []struct {
-		name     string
-		actual   error
-		expected error
-		testState
+		N string                        // Name.
+		F func(assert *testr.Assertion) // Function.
+		S testState                     // State.
 	}{
-		{"eq: nil", nil, nil, pass()},
-		{"eq: not nil", errFoo, errFoo, pass()},
-		{"eq: wrap", errWrapFoo, errFoo, pass()},
-		{"ne: nil", errFoo, nil, fail("error(foo) != expected:nil()")},
-		{"ne: not nil", errFoo, errBar, fail("error(foo) != expected:error(bar)")},
-		{"ne: wrap", errWrapFoo, errBar, fail("error(wrap foo) != expected:error(bar)")},
+		{
+			N: "eq: nil",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(nil, nil) },
+			S: pass(),
+		},
+		{
+			N: "eq: not nil",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, errFoo) },
+			S: pass(),
+		},
+		{
+			N: "eq: wrap",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(errWrapFoo, errFoo) },
+			S: pass(),
+		},
+		{
+			N: "ne: nil",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, nil) },
+			S: fail("error(foo) != expected:nil()"),
+		},
+		{
+			N: "ne: not nil",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, errBar) },
+			S: fail("error(foo) != expected:error(bar)"),
+		},
+		{
+			N: "ne: wrap",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(errWrapFoo, errBar) },
+			S: fail("error(wrap foo) != expected:error(bar)"),
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.N, func(t *testing.T) {
 			m := newMockT(t)
-			assert := testr.New(m)
-			assert.ErrorIs(tc.actual, tc.expected)
-			m.assert(tc.testState)
+			tc.F(testr.New(m))
+			m.assert(tc.S)
 		})
 	}
 }
 
 func TestAssertErrorAs(t *testing.T) {
 	tests := []struct {
-		name   string
-		actual error
-		testState
+		N string                        // Name.
+		F func(assert *testr.Assertion) // Function.
+		S testState                     // State.
 	}{
-		{"eq", customError("err"), pass()},
-		{"ne", errFoo, fail("error(foo) != expected:as(*testr_test.customError)")},
+		{
+			N: "eq",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(customError("err"), &e)
+			},
+			S: pass(),
+		},
+		{
+			N: "ne",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(errFoo, &e)
+			},
+			S: fail("error(foo) != expected:as(*testr_test.customError)"),
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.N, func(t *testing.T) {
 			m := newMockT(t)
-			assert := testr.New(m)
-			var expected customError
-			assert.ErrorAs(tc.actual, &expected)
-			m.assert(tc.testState)
+			tc.F(testr.New(m))
+			m.assert(tc.S)
 		})
 	}
 }
 
 func TestAssertPanic(t *testing.T) {
 	tests := []struct {
-		name string
-		f    func()
-		testState
+		N string                        // Name.
+		F func(assert *testr.Assertion) // Function.
+		S testState                     // State.
 	}{
-		{"panic", func() { panic("panic") }, pass()},
-		{"not panic", func() {}, fail("func() != expected:panic()")},
+		{
+			N: "panic",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() { panic("panic") })
+			},
+			S: pass(),
+		},
+		{
+			N: "panic",
+			F: func(assert *testr.Assertion) { assert.Panic(func() {}) },
+			S: fail("func() != expected:panic()"),
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.N, func(t *testing.T) {
 			m := newMockT(t)
-			assert := testr.New(m)
-			assert.Panic(tc.f)
-			m.assert(tc.testState)
+			tc.F(testr.New(m))
+			m.assert(tc.S)
 		})
 	}
 }
 
 func TestNilT(t *testing.T) {
 	tests := []struct {
-		name string
-		f    func(assert *testr.Assertion)
+		N string                        // Name.
+		F func(assert *testr.Assertion) // Function.
 	}{
-		{"Equal", func(assert *testr.Assertion) {
-			assert.Equal(nil, nil)
-		}},
-		{"ErrorIs", func(assert *testr.Assertion) {
-			assert.ErrorIs(nil, nil)
-		}},
-		{"ErrorAs", func(assert *testr.Assertion) {
-			var e customError
-			assert.ErrorAs(customError("err"), &e)
-		}},
-		{"Panic", func(assert *testr.Assertion) {
-			assert.Panic(func() { panic("panic") })
-		}},
+		{
+			N: "Equal",
+			F: func(assert *testr.Assertion) { assert.Equal(nil, nil) },
+		},
+		{
+			N: "ErrorIs",
+			F: func(assert *testr.Assertion) { assert.ErrorIs(nil, nil) },
+		},
+		{
+			N: "ErrorAs",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(customError("err"), &e)
+			},
+		},
+		{
+			N: "Panic",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() { panic("panic") })
+			},
+		},
 	}
 
 	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(tc.N, func(t *testing.T) {
 			defer func() {
 				v := recover()
 				if v != nil {
@@ -177,7 +242,7 @@ func TestNilT(t *testing.T) {
 				t.Errorf("func() != panic()")
 			}()
 			assert := testr.New(nil)
-			tc.f(assert)
+			tc.F(assert)
 		})
 	}
 }
