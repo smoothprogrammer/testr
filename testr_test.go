@@ -127,6 +127,26 @@ func TestAssertErrorAs(t *testing.T) {
 	}
 }
 
+func TestAssertPanic(t *testing.T) {
+	tests := []struct {
+		name string
+		f    func()
+		testState
+	}{
+		{"panic", func() { panic("panic") }, pass()},
+		{"not panic", func() {}, fail("func() != expected:panic()")},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			m := newMockT(t)
+			assert := testr.New(m)
+			assert.Panic(tc.f)
+			m.assert(tc.testState)
+		})
+	}
+}
+
 func TestNilT(t *testing.T) {
 	tests := []struct {
 		name string
@@ -142,6 +162,9 @@ func TestNilT(t *testing.T) {
 			var e customError
 			assert.ErrorAs(customError("err"), &e)
 		}},
+		{"Panic", func(assert *testr.Assertion) {
+			assert.Panic(func() { panic("panic") })
+		}},
 	}
 
 	for _, tc := range tests {
@@ -151,7 +174,7 @@ func TestNilT(t *testing.T) {
 				if v != nil {
 					return
 				}
-				t.Errorf("the function is not panic")
+				t.Errorf("func() != panic()")
 			}()
 			assert := testr.New(nil)
 			tc.f(assert)

@@ -59,14 +59,32 @@ func (assert *Assertion) ErrorAs(actual error, expected any) {
 	defer assert.t.Fail()
 
 	assert.t.Helper()
-	assert.t.Logf("%s", ne(actual, as(fmt.Sprintf("%T", expected))))
+	assert.t.Logf("%s", ne(actual, raw(fmt.Sprintf("as(%T)", expected))))
+}
+
+func (assert *Assertion) Panic(f func()) {
+	assert.checkNilT()
+
+	defer func() {
+		v := recover()
+		if v != nil {
+			return
+		}
+		defer assert.t.Fail()
+
+		assert.t.Helper()
+		assert.t.Logf("%s", ne(raw("func()"), raw("panic()")))
+	}()
+
+	assert.t.Helper()
+	f()
 }
 
 func ne(actual, expected any) string {
 	return fmt.Sprintf("%s != expected:%s", val(actual), val(expected))
 }
 
-type as string
+type raw string
 
 func val(v any) string {
 	if v == nil {
@@ -77,8 +95,8 @@ func val(v any) string {
 		return fmt.Sprintf("error(%v)", err)
 	}
 
-	if errType, ok := v.(as); ok {
-		return fmt.Sprintf("as(%v)", errType)
+	if s, ok := v.(raw); ok {
+		return string(s)
 	}
 
 	return fmt.Sprintf("%[1]T(%[1]v)", v)
