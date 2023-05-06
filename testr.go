@@ -10,6 +10,7 @@ type T interface {
 	Helper()
 	Logf(format string, args ...any)
 	Fail()
+	FailNow()
 }
 
 type Assertion struct {
@@ -28,12 +29,12 @@ func (assert *Assertion) checkNilT() {
 
 func (assert *Assertion) Equal(actual any, expected any, options ...Option) {
 	assert.checkNilT()
-	opt := newOption(options...)
+	opt := newOption(assert.t, options...)
 
 	if reflect.DeepEqual(actual, expected) {
 		return
 	}
-	defer assert.t.Fail()
+	defer opt.fail()
 
 	assert.t.Helper()
 	assert.t.Logf("%s%s", ne(actual, expected), opt.message)
@@ -41,12 +42,12 @@ func (assert *Assertion) Equal(actual any, expected any, options ...Option) {
 
 func (assert *Assertion) ErrorIs(actual error, expected error, options ...Option) {
 	assert.checkNilT()
-	opt := newOption(options...)
+	opt := newOption(assert.t, options...)
 
 	if errors.Is(actual, expected) {
 		return
 	}
-	defer assert.t.Fail()
+	defer opt.fail()
 
 	assert.t.Helper()
 	assert.t.Logf("%s%s", ne(actual, expected), opt.message)
@@ -54,12 +55,12 @@ func (assert *Assertion) ErrorIs(actual error, expected error, options ...Option
 
 func (assert *Assertion) ErrorAs(actual error, expected any, options ...Option) {
 	assert.checkNilT()
-	opt := newOption(options...)
+	opt := newOption(assert.t, options...)
 
 	if errors.As(actual, expected) {
 		return
 	}
-	defer assert.t.Fail()
+	defer opt.fail()
 
 	assert.t.Helper()
 	assert.t.Logf("%s%s", ne(actual, raw(fmt.Sprintf("as(%T)", expected))), opt.message)
@@ -67,14 +68,14 @@ func (assert *Assertion) ErrorAs(actual error, expected any, options ...Option) 
 
 func (assert *Assertion) Panic(f func(), options ...Option) {
 	assert.checkNilT()
-	opt := newOption(options...)
+	opt := newOption(assert.t, options...)
 
 	defer func() {
 		v := recover()
 		if v != nil {
 			return
 		}
-		defer assert.t.Fail()
+		defer opt.fail()
 
 		assert.t.Helper()
 		assert.t.Logf("%s%s", ne(raw("func()"), raw("panic()")), opt.message)

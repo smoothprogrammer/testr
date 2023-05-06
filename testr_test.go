@@ -23,6 +23,7 @@ func newMockT(t *testing.T) *mockT {
 func (m *mockT) Helper()                         { /* TODO: how to test helper? */ }
 func (m *mockT) Logf(format string, args ...any) { m.actual.output = fmt.Sprintf(format, args...) }
 func (m *mockT) Fail()                           { m.actual.state = fail("").state }
+func (m *mockT) FailNow()                        { m.actual.state = failNow("").state }
 
 func (m *mockT) assert(expected testState) {
 	m.t.Helper()
@@ -44,6 +45,10 @@ func pass() testState {
 
 func fail(output string) testState {
 	return testState{"fail", output}
+}
+
+func failNow(output string) testState {
+	return testState{"fail now", output}
 }
 
 var (
@@ -82,6 +87,13 @@ func TestAssertEqual(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.Equal(nil, nil, testr.WithFailNow())
+			},
+			S: pass(),
+		},
+		{
 			N: "ne: diff val",
 			F: func(assert *testr.Assertion) { assert.Equal(false, true) },
 			S: fail("bool(false) != expected:bool(true)"),
@@ -97,6 +109,13 @@ func TestAssertEqual(t *testing.T) {
 				assert.Equal(false, true, testr.WithMessage("message"))
 			},
 			S: fail("bool(false) != expected:bool(true) // message"),
+		},
+		{
+			N: "ne: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.Equal(nil, "nil", testr.WithFailNow())
+			},
+			S: failNow("nil() != expected:string(nil)"),
 		},
 	}
 
@@ -138,6 +157,13 @@ func TestAssertErrorIs(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.ErrorIs(nil, nil, testr.WithFailNow())
+			},
+			S: pass(),
+		},
+		{
 			N: "ne: nil",
 			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, nil) },
 			S: fail("error(foo) != expected:nil()"),
@@ -158,6 +184,13 @@ func TestAssertErrorIs(t *testing.T) {
 				assert.ErrorIs(errFoo, nil, testr.WithMessage("message"))
 			},
 			S: fail("error(foo) != expected:nil() // message"),
+		},
+		{
+			N: "ne: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.ErrorIs(errFoo, nil, testr.WithFailNow())
+			},
+			S: failNow("error(foo) != expected:nil()"),
 		},
 	}
 
@@ -193,6 +226,14 @@ func TestAssertErrorAs(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with fail now",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(customError("err"), &e, testr.WithFailNow())
+			},
+			S: pass(),
+		},
+		{
 			N: "ne",
 			F: func(assert *testr.Assertion) {
 				var e customError
@@ -207,6 +248,14 @@ func TestAssertErrorAs(t *testing.T) {
 				assert.ErrorAs(errFoo, &e, testr.WithMessage("message"))
 			},
 			S: fail("error(foo) != expected:as(*testr_test.customError) // message"),
+		},
+		{
+			N: "ne: with fail now",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(errFoo, &e, testr.WithFailNow())
+			},
+			S: failNow("error(foo) != expected:as(*testr_test.customError)"),
 		},
 	}
 
@@ -240,6 +289,13 @@ func TestAssertPanic(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "panic: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() { panic("panic") }, testr.WithFailNow())
+			},
+			S: pass(),
+		},
+		{
 			N: "not panic",
 			F: func(assert *testr.Assertion) { assert.Panic(func() {}) },
 			S: fail("func() != expected:panic()"),
@@ -250,6 +306,13 @@ func TestAssertPanic(t *testing.T) {
 				assert.Panic(func() {}, testr.WithMessage("message"))
 			},
 			S: fail("func() != expected:panic() // message"),
+		},
+		{
+			N: "not panic: with fail now",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() {}, testr.WithFailNow())
+			},
+			S: failNow("func() != expected:panic()"),
 		},
 	}
 
