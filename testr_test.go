@@ -75,6 +75,13 @@ func TestAssertEqual(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with message",
+			F: func(assert *testr.Assertion) {
+				assert.Equal(nil, nil, testr.WithMessage("message"))
+			},
+			S: pass(),
+		},
+		{
 			N: "ne: diff val",
 			F: func(assert *testr.Assertion) { assert.Equal(false, true) },
 			S: fail("bool(false) != expected:bool(true)"),
@@ -83,6 +90,13 @@ func TestAssertEqual(t *testing.T) {
 			N: "ne: diff type",
 			F: func(assert *testr.Assertion) { assert.Equal(nil, "nil") },
 			S: fail("nil() != expected:string(nil)"),
+		},
+		{
+			N: "ne: with message",
+			F: func(assert *testr.Assertion) {
+				assert.Equal(false, true, testr.WithMessage("message"))
+			},
+			S: fail("bool(false) != expected:bool(true) // message"),
 		},
 	}
 
@@ -117,6 +131,13 @@ func TestAssertErrorIs(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with message",
+			F: func(assert *testr.Assertion) {
+				assert.ErrorIs(nil, nil, testr.WithMessage("message"))
+			},
+			S: pass(),
+		},
+		{
 			N: "ne: nil",
 			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, nil) },
 			S: fail("error(foo) != expected:nil()"),
@@ -130,6 +151,13 @@ func TestAssertErrorIs(t *testing.T) {
 			N: "ne: wrap",
 			F: func(assert *testr.Assertion) { assert.ErrorIs(errWrapFoo, errBar) },
 			S: fail("error(wrap foo) != expected:error(bar)"),
+		},
+		{
+			N: "ne: with message",
+			F: func(assert *testr.Assertion) {
+				assert.ErrorIs(errFoo, nil, testr.WithMessage("message"))
+			},
+			S: fail("error(foo) != expected:nil() // message"),
 		},
 	}
 
@@ -157,12 +185,28 @@ func TestAssertErrorAs(t *testing.T) {
 			S: pass(),
 		},
 		{
+			N: "eq: with message",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(customError("err"), &e, testr.WithMessage("message"))
+			},
+			S: pass(),
+		},
+		{
 			N: "ne",
 			F: func(assert *testr.Assertion) {
 				var e customError
 				assert.ErrorAs(errFoo, &e)
 			},
 			S: fail("error(foo) != expected:as(*testr_test.customError)"),
+		},
+		{
+			N: "ne: with message",
+			F: func(assert *testr.Assertion) {
+				var e customError
+				assert.ErrorAs(errFoo, &e, testr.WithMessage("message"))
+			},
+			S: fail("error(foo) != expected:as(*testr_test.customError) // message"),
 		},
 	}
 
@@ -189,9 +233,23 @@ func TestAssertPanic(t *testing.T) {
 			S: pass(),
 		},
 		{
-			N: "panic",
+			N: "panic: with message",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() { panic("panic") }, testr.WithMessage("message"))
+			},
+			S: pass(),
+		},
+		{
+			N: "not panic",
 			F: func(assert *testr.Assertion) { assert.Panic(func() {}) },
 			S: fail("func() != expected:panic()"),
+		},
+		{
+			N: "not panic: with message",
+			F: func(assert *testr.Assertion) {
+				assert.Panic(func() {}, testr.WithMessage("message"))
+			},
+			S: fail("func() != expected:panic() // message"),
 		},
 	}
 

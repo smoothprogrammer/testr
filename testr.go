@@ -26,8 +26,9 @@ func (assert *Assertion) checkNilT() {
 	}
 }
 
-func (assert *Assertion) Equal(actual any, expected any) {
+func (assert *Assertion) Equal(actual any, expected any, options ...Option) {
 	assert.checkNilT()
+	opt := newOption(options...)
 
 	if reflect.DeepEqual(actual, expected) {
 		return
@@ -35,11 +36,12 @@ func (assert *Assertion) Equal(actual any, expected any) {
 	defer assert.t.Fail()
 
 	assert.t.Helper()
-	assert.t.Logf("%s", ne(actual, expected))
+	assert.t.Logf("%s%s", ne(actual, expected), opt.message)
 }
 
-func (assert *Assertion) ErrorIs(actual error, expected error) {
+func (assert *Assertion) ErrorIs(actual error, expected error, options ...Option) {
 	assert.checkNilT()
+	opt := newOption(options...)
 
 	if errors.Is(actual, expected) {
 		return
@@ -47,11 +49,12 @@ func (assert *Assertion) ErrorIs(actual error, expected error) {
 	defer assert.t.Fail()
 
 	assert.t.Helper()
-	assert.t.Logf("%s", ne(actual, expected))
+	assert.t.Logf("%s%s", ne(actual, expected), opt.message)
 }
 
-func (assert *Assertion) ErrorAs(actual error, expected any) {
+func (assert *Assertion) ErrorAs(actual error, expected any, options ...Option) {
 	assert.checkNilT()
+	opt := newOption(options...)
 
 	if errors.As(actual, expected) {
 		return
@@ -59,11 +62,12 @@ func (assert *Assertion) ErrorAs(actual error, expected any) {
 	defer assert.t.Fail()
 
 	assert.t.Helper()
-	assert.t.Logf("%s", ne(actual, raw(fmt.Sprintf("as(%T)", expected))))
+	assert.t.Logf("%s%s", ne(actual, raw(fmt.Sprintf("as(%T)", expected))), opt.message)
 }
 
-func (assert *Assertion) Panic(f func()) {
+func (assert *Assertion) Panic(f func(), options ...Option) {
 	assert.checkNilT()
+	opt := newOption(options...)
 
 	defer func() {
 		v := recover()
@@ -73,7 +77,7 @@ func (assert *Assertion) Panic(f func()) {
 		defer assert.t.Fail()
 
 		assert.t.Helper()
-		assert.t.Logf("%s", ne(raw("func()"), raw("panic()")))
+		assert.t.Logf("%s%s", ne(raw("func()"), raw("panic()")), opt.message)
 	}()
 
 	assert.t.Helper()
