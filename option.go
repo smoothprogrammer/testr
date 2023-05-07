@@ -6,6 +6,7 @@ type option struct {
 	fail    func()
 }
 
+// Option represents options for the Assertion's methods.
 type Option func(*option)
 
 func newOption(t T, opts ...Option) option {
@@ -20,6 +21,8 @@ func newOption(t T, opts ...Option) option {
 	return opt
 }
 
+// WithMessage appends the message to the end of the output
+// if the assertion is fail.
 func WithMessage(message string) Option {
 	return func(o *option) {
 		if message != "" {
@@ -28,6 +31,8 @@ func WithMessage(message string) Option {
 	}
 }
 
+// WithFailNow marks the test state as fail and stop the execution
+// if the assertion is fail.
 func WithFailNow() Option {
 	return func(o *option) {
 		o.fail = o.t.FailNow

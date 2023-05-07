@@ -25,6 +25,7 @@ func (m *mockT) Logf(format string, args ...any) { m.actual.output = fmt.Sprintf
 func (m *mockT) Fail()                           { m.actual.state = fail("").state }
 func (m *mockT) FailNow()                        { m.actual.state = failNow("").state }
 
+// assert asserts the actual test state with the expected test state.
 func (m *mockT) assert(expected testState) {
 	m.t.Helper()
 	if m.actual.state != expected.state {
@@ -35,18 +36,22 @@ func (m *mockT) assert(expected testState) {
 	}
 }
 
+// testState represents the state of the test and it's output.
 type testState struct {
 	state, output string
 }
 
+// pass sets the test state as pass with empty output.
 func pass() testState {
 	return testState{"pass", ""}
 }
 
+// fail sets the test state as fail with an output.
 func fail(output string) testState {
 	return testState{"fail", output}
 }
 
+// failNow sets the test state as fail now with an output.
 func failNow(output string) testState {
 	return testState{"fail now", output}
 }
