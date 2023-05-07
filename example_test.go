@@ -1,19 +1,6 @@
 package testr_test
 
-import (
-	"fmt"
-
-	"github.com/minizilla/testr"
-)
-
-type exampleT struct{}
-
-func (m *exampleT) Helper()                         {}
-func (m *exampleT) Logf(format string, args ...any) { fmt.Printf(format+"\n", args...) }
-func (m *exampleT) Fail()                           {}
-func (m *exampleT) FailNow()                        {}
-
-var t = new(exampleT)
+import "github.com/minizilla/testr"
 
 func ExampleAssertion_Equal() {
 	assert := testr.New(t) // using *testing.T
