@@ -41,6 +41,16 @@ func ExampleAssertion_ErrorAs() {
 	// error(foo) != expected:as(*testr_test.customError)
 }
 
+func ExampleAssertion_Panic() {
+	assert := testr.New(t) // using *testing.T
+
+	assert.Panic(func() { panic("panic") }) // PASS
+	assert.Panic(func() {})                 // FAIL
+
+	// Output:
+	// func() != expected:panic()
+}
+
 func ExampleWithMessage() {
 	assert := testr.New(t) // using *testing.T
 
