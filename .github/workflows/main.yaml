@@ -31,7 +31,7 @@ jobs:
         run: |
           nix --store ${{ env.CI_NIX_STORE }} \
             develop ${{ env.CI_NIX_FLAKE }} --command \
-            go test -cover
+            go test -v -cover -race ./...
   lint:
     runs-on: ubuntu-latest
     steps:
