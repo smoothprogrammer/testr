@@ -44,7 +44,7 @@ func TestAssertEqual(t *testing.T) {
 		{
 			N: "ne: diff type",
 			F: func(assert *testr.Assertion) { assert.Equal(nil, "nil") },
-			S: fail("nil() != expected:string(nil)"),
+			S: fail("nil() != expected:string(\"nil\")"),
 		},
 		{
 			N: "ne: with message",
@@ -58,7 +58,7 @@ func TestAssertEqual(t *testing.T) {
 			F: func(assert *testr.Assertion) {
 				assert.Equal(nil, "nil", testr.WithFailNow())
 			},
-			S: failNow("nil() != expected:string(nil)"),
+			S: failNow("nil() != expected:string(\"nil\")"),
 		},
 	}
 

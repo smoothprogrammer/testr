@@ -119,5 +119,5 @@ func val(v any) string {
 		return string(s)
 	}
 
-	return fmt.Sprintf("%[1]T(%[1]v)", v)
+	return fmt.Sprintf("%[1]T(%#[1]v)", v)
 }
