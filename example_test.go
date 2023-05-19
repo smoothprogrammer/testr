@@ -5,13 +5,15 @@ import "github.com/minizilla/testr"
 func ExampleAssertion_Equal() {
 	assert := testr.New(t) // using *testing.T
 
-	assert.Equal(nil, nil)           // PASS
-	assert.Equal(false, true)        // FAIL
-	assert.Equal(int32(0), int64(0)) // FAIL
+	assert.Equal(nil, nil)                    // PASS
+	assert.Equal(false, true)                 // FAIL
+	assert.Equal("nil", nil)                  // FAIL
+	assert.Equal([]string{"hello\nworld"}, 0) // FAIL
 
 	// Output:
-	// bool(false) != expected:bool(true)
-	// int32(0) != expected:int64(0)
+	// false != expected:true
+	// "nil" != expected:<nil>
+	// []string{"hello\nworld"} != expected:0
 }
 
 func ExampleAssertion_ErrorIs() {
@@ -25,7 +27,7 @@ func ExampleAssertion_ErrorIs() {
 	assert.ErrorIs(errWrapFoo, errBar) // FAIL
 
 	// Output:
-	// error(foo) != expected:nil()
+	// error(foo) != expected:<nil>
 	// error(foo) != expected:error(bar)
 	// error(wrap foo) != expected:error(bar)
 }
@@ -54,15 +56,15 @@ func ExampleAssertion_Panic() {
 func ExampleWithMessage() {
 	assert := testr.New(t) // using *testing.T
 
-	assert.Equal(int32(0), int64(0), testr.WithMessage("assert different type"))
+	assert.Equal(false, true, testr.WithMessage("assert equality"))
 	assert.ErrorIs(errFoo, nil, testr.WithMessage("assert err is nil"))
 	var e customError
 	assert.ErrorAs(errFoo, &e, testr.WithMessage("assert err as customError"))
 	assert.Panic(func() {}, testr.WithMessage("assert function is panic"))
 
 	// Output:
-	// int32(0) != expected:int64(0) // assert different type
-	// error(foo) != expected:nil() // assert err is nil
+	// false != expected:true // assert equality
+	// error(foo) != expected:<nil> // assert err is nil
 	// error(foo) != expected:as(*testr_test.customError) // assert err as customError
 	// func() != expected:panic() // assert function is panic
 }
@@ -76,5 +78,5 @@ func ExampleWithFailNow() {
 	)
 
 	// Output:
-	// error(foo) != expected:nil() // using t.FailNow
+	// error(foo) != expected:<nil> // using t.FailNow
 }

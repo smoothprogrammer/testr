@@ -107,10 +107,6 @@ type raw string
 
 // val returns a string of v with it's type or returns as is if v is raw.
 func val(v any) string {
-	if v == nil {
-		return "nil()"
-	}
-
 	if err, ok := v.(error); ok {
 		return fmt.Sprintf("error(%v)", err)
 	}
@@ -119,5 +115,5 @@ func val(v any) string {
 		return string(s)
 	}
 
-	return fmt.Sprintf("%[1]T(%#[1]v)", v)
+	return fmt.Sprintf("%#v", v)
 }

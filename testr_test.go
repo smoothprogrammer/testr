@@ -13,13 +13,8 @@ func TestAssertEqual(t *testing.T) {
 		S testState                     // State.
 	}{
 		{
-			N: "eq: nil",
+			N: "eq",
 			F: func(assert *testr.Assertion) { assert.Equal(nil, nil) },
-			S: pass(),
-		},
-		{
-			N: "eq: not nil",
-			F: func(assert *testr.Assertion) { assert.Equal(false, false) },
 			S: pass(),
 		},
 		{
@@ -37,28 +32,72 @@ func TestAssertEqual(t *testing.T) {
 			S: pass(),
 		},
 		{
-			N: "ne: diff val",
-			F: func(assert *testr.Assertion) { assert.Equal(false, true) },
-			S: fail("bool(false) != expected:bool(true)"),
+			N: "ne: bool",
+			F: func(assert *testr.Assertion) { assert.Equal(false, nil) },
+			S: fail("false != expected:<nil>"),
 		},
 		{
-			N: "ne: diff type",
-			F: func(assert *testr.Assertion) { assert.Equal(nil, "nil") },
-			S: fail("nil() != expected:string(\"nil\")"),
+			N: "ne: int",
+			F: func(assert *testr.Assertion) { assert.Equal(0, nil) },
+			S: fail("0 != expected:<nil>"),
+		},
+		{
+			N: "ne: float",
+			F: func(assert *testr.Assertion) { assert.Equal(0.0, nil) },
+			S: fail("0 != expected:<nil>"),
+		},
+		{
+			N: "ne: complex",
+			F: func(assert *testr.Assertion) { assert.Equal(0i, nil) },
+			S: fail("(0+0i) != expected:<nil>"),
+		},
+		{
+			N: "ne: array",
+			F: func(assert *testr.Assertion) {
+				assert.Equal([1]string{""}, nil)
+			},
+			S: fail("[1]string{\"\"} != expected:<nil>"),
+		},
+		{
+			N: "ne: map",
+			F: func(assert *testr.Assertion) {
+				assert.Equal(map[bool]string{false: ""}, nil)
+			},
+			S: fail("map[bool]string{false:\"\"} != expected:<nil>"),
+		},
+		{
+			N: "ne: slice",
+			F: func(assert *testr.Assertion) {
+				assert.Equal([]string{""}, nil)
+			},
+			S: fail("[]string{\"\"} != expected:<nil>"),
+		},
+		{
+			N: "ne: string",
+			F: func(assert *testr.Assertion) { assert.Equal("", nil) },
+			S: fail("\"\" != expected:<nil>"),
+		},
+		{
+			N: "ne: struct",
+			F: func(assert *testr.Assertion) {
+				type s struct{}
+				assert.Equal(s{}, nil)
+			},
+			S: fail("testr_test.s{} != expected:<nil>"),
 		},
 		{
 			N: "ne: with message",
 			F: func(assert *testr.Assertion) {
-				assert.Equal(false, true, testr.WithMessage("message"))
+				assert.Equal(false, nil, testr.WithMessage("message"))
 			},
-			S: fail("bool(false) != expected:bool(true) // message"),
+			S: fail("false != expected:<nil> // message"),
 		},
 		{
 			N: "ne: with fail now",
 			F: func(assert *testr.Assertion) {
-				assert.Equal(nil, "nil", testr.WithFailNow())
+				assert.Equal(false, nil, testr.WithFailNow())
 			},
-			S: failNow("nil() != expected:string(\"nil\")"),
+			S: failNow("false != expected:<nil>"),
 		},
 	}
 
@@ -109,7 +148,7 @@ func TestAssertErrorIs(t *testing.T) {
 		{
 			N: "ne: nil",
 			F: func(assert *testr.Assertion) { assert.ErrorIs(errFoo, nil) },
-			S: fail("error(foo) != expected:nil()"),
+			S: fail("error(foo) != expected:<nil>"),
 		},
 		{
 			N: "ne: not nil",
@@ -126,14 +165,14 @@ func TestAssertErrorIs(t *testing.T) {
 			F: func(assert *testr.Assertion) {
 				assert.ErrorIs(errFoo, nil, testr.WithMessage("message"))
 			},
-			S: fail("error(foo) != expected:nil() // message"),
+			S: fail("error(foo) != expected:<nil> // message"),
 		},
 		{
 			N: "ne: with fail now",
 			F: func(assert *testr.Assertion) {
 				assert.ErrorIs(errFoo, nil, testr.WithFailNow())
 			},
-			S: failNow("error(foo) != expected:nil()"),
+			S: failNow("error(foo) != expected:<nil>"),
 		},
 	}
 
