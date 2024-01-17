@@ -1,6 +1,12 @@
 package testr_test
 
-import "github.com/minizilla/testr"
+import (
+	"fmt"
+	"io"
+	"strings"
+
+	"github.com/minizilla/testr"
+)
 
 func ExampleAssertion_Equal() {
 	assert := testr.New(t) // using *testing.T
@@ -79,4 +85,13 @@ func ExampleWithFailNow() {
 
 	// Output:
 	// error(foo) != expected:<nil> // using t.FailNow
+}
+
+func ExampleMust() {
+	r := strings.NewReader("testr")
+	b := testr.Must(io.ReadAll(r))
+	fmt.Println(string(b))
+
+	// Output:
+	// testr
 }

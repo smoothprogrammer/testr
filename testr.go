@@ -97,6 +97,18 @@ func (assert *Assertion) Panic(f func(), options ...Option) {
 	f()
 }
 
+// Must is a helper that wraps a call to a function returning (T, error)
+// and panics if the error is non-nil. It is intended for use in variable
+// initializations such as
+//
+//	t := testr.Must(template.New("name").Parse("text"))
+func Must[T any](v T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // ne returns a formatted string that tells the two objects are not equal.
 func ne(actual, expected any) string {
 	return fmt.Sprintf("%s != expected:%s", val(actual), val(expected))

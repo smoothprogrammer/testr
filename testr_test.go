@@ -1,6 +1,7 @@
 package testr_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/minizilla/testr"
@@ -348,4 +349,10 @@ func TestNilT(t *testing.T) {
 			tc.F(assert)
 		})
 	}
+}
+
+func TestMust(t *testing.T) {
+	assert := testr.New(t)
+	assert.Equal(testr.Must("ok", nil), "ok")
+	assert.Panic(func() { testr.Must("panic", errors.New("intentional error")) })
 }
