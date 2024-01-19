@@ -97,12 +97,23 @@ func (assert *Assertion) Panic(f func(), options ...Option) {
 	f()
 }
 
-// Must is a helper that wraps a call to a function returning (T, error)
+// Must is a helper that wraps a call to a function returning error
 // and panics if the error is non-nil. It is intended for use in variable
 // initializations such as
 //
-//	t := testr.Must(template.New("name").Parse("text"))
-func Must[T any](v T, err error) T {
+//	t := testr.MustV(json.Unmarshal(b, &v))
+func Must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+// MustV is a helper that wraps a call to a function returning (V, error)
+// and panics if the error is non-nil. It is intended for use in variable
+// initializations such as
+//
+//	t := testr.MustV(json.Marshal(v))
+func MustV[V any](v V, err error) V {
 	if err != nil {
 		panic(err)
 	}

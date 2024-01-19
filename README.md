@@ -7,4 +7,4 @@ Package testr provides a minimal extension to the standard library's testing.
 - Minimal assertion API with  `Equal`, `ErrorIs`, `ErrorAs`, and `Panic`.
 - Optional message using `WithMessage`.
 - Stop the execution using `WithFailNow`.
-- Ease of initialization with `Must`.
+- Ease of initialization with `Must` and `MustV`.

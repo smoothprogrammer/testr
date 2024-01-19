@@ -353,6 +353,12 @@ func TestNilT(t *testing.T) {
 
 func TestMust(t *testing.T) {
 	assert := testr.New(t)
-	assert.Equal(testr.Must("ok", nil), "ok")
-	assert.Panic(func() { testr.Must("panic", errors.New("intentional error")) })
+	testr.Must(nil)
+	assert.Panic(func() { testr.Must(errors.New("intentional error")) })
+}
+
+func TestMustV(t *testing.T) {
+	assert := testr.New(t)
+	assert.Equal(testr.MustV("ok", nil), "ok")
+	assert.Panic(func() { testr.MustV("panic", errors.New("intentional error")) })
 }

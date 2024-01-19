@@ -1,9 +1,8 @@
 package testr_test
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
-	"strings"
 
 	"github.com/minizilla/testr"
 )
@@ -88,10 +87,18 @@ func ExampleWithFailNow() {
 }
 
 func ExampleMust() {
-	r := strings.NewReader("testr")
-	b := testr.Must(io.ReadAll(r))
-	fmt.Println(string(b))
+	var v string
+	testr.Must(json.Unmarshal([]byte(`"testr"`), &v))
+	fmt.Println(v)
 
 	// Output:
 	// testr
+}
+
+func ExampleMustV() {
+	b := testr.MustV(json.Marshal("testr"))
+	fmt.Println(string(b))
+
+	// Output:
+	// "testr"
 }
