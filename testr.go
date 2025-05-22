@@ -7,6 +7,9 @@ import (
 	"reflect"
 )
 
+// ErrIntentional is a sentinel error represents intentional error in the test.
+var ErrIntentional = errors.New("testr: intentional error")
+
 // T represents testing.T.
 type T interface {
 	Helper()

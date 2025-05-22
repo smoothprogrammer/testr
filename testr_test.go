@@ -1,7 +1,6 @@
 package testr_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/smoothprogrammer/testr"
@@ -354,11 +353,11 @@ func TestNilT(t *testing.T) {
 func TestMust(t *testing.T) {
 	assert := testr.New(t)
 	testr.Must(nil)
-	assert.Panic(func() { testr.Must(errors.New("intentional error")) })
+	assert.Panic(func() { testr.Must(testr.ErrIntentional) })
 }
 
 func TestMustV(t *testing.T) {
 	assert := testr.New(t)
 	assert.Equal(testr.MustV("ok", nil), "ok")
-	assert.Panic(func() { testr.MustV("panic", errors.New("intentional error")) })
+	assert.Panic(func() { testr.MustV("panic", testr.ErrIntentional) })
 }
