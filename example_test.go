@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/minizilla/testr"
+	"github.com/smoothprogrammer/testr"
 )
 
 func ExampleAssertion_Equal() {
