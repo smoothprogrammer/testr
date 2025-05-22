@@ -1,28 +1,25 @@
-# https://editorconfig.org
+; https://editorconfig.org
 root = true
 
-# default configuration
+; default configuration
 [*]
 charset = utf-8
 end_of_line = lf
 trim_trailing_whitespace = true
 insert_final_newline = true
+indent_style = unset
 
-# tab is problematic for markdown
-[*.md]
+[{*.nix,flake.lock}]
 indent_style = space
 indent_size = 2
 
-; yaml require space indentation
 [*.{yml,yaml}]
 indent_style = space
 indent_size = 2
 
-; nixpkgs-fmt compatible
-[*.nix,flake.lock]
+[*.md]
 indent_style = space
 indent_size = 2
 
-# gofmt compatible
 [*.go,go.mod,go.sum]
 indent_style = tab
