@@ -1,22 +1,35 @@
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.11";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+  description = "testr";
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem
-      (system:
-        let pkgs = import nixpkgs { inherit system; }; in
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+  outputs =
+    { nixpkgs, ... }:
+    let
+      forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
+    in
+    {
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
         {
-          devShells = {
-            default = pkgs.mkShell {
-              packages = with pkgs; [
-                go
-                editorconfig-checker
-              ];
-            };
+          default = pkgs.mkShell {
+            name = "testr";
+            shellHook = ''
+              git rev-parse --is-inside-work-tree >/dev/null 2>&1 || git init
+              git config pull.rebase true
+              ${pkgs.neo-cowsay}/bin/cowsay -f sage "testr"
+            '';
+            buildInputs = with pkgs; [
+              editorconfig-checker
+              go
+              gopls
+              delve
+            ];
           };
         }
       );
+    };
 }
